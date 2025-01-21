@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static c_GameManager;
 
 public class c_EnemyController : MonoBehaviour
 {
@@ -25,8 +26,8 @@ public class c_EnemyController : MonoBehaviour
     void Update()
     {
         // ゲームオーバーなら処理を停止
-        if (gameState == "gameover") return;
-        
+        if (c_GameManager.CurrentState == GameState.GameOver) return;
+        if (c_GameManager.CurrentState == GameState.GameClear) return;
 
         PlayerPos = Player.transform.position;//プレイヤーの現在位置を取得
             transform.position = Vector2.MoveTowards(transform.position, PlayerPos, speed * Time.deltaTime);//現在位置からプレイヤーの位置に向けて移動

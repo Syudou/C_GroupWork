@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static c_GameManager;
 
 public class c_Enemy3Controller : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class c_Enemy3Controller : MonoBehaviour
     void Start()
     {
         if (gameState == "gameover") return;
+        if (c_GameManager.CurrentState == GameState.GameOver) return;
+        if (c_GameManager.CurrentState == GameState.GameClear) return;
 
         GameObject player = GameObject.FindWithTag("Player");
 
@@ -24,13 +27,7 @@ public class c_Enemy3Controller : MonoBehaviour
             // プレイヤーの方向を計算
             direction = (player.transform.position - transform.position).normalized;
         }
-        //else
-        //{
-        //    // 移動方向をランダムに設定
-        //    float randomX = Random.Range(-1f, 1f);
-        //    float randomY = Random.Range(-1f, 1f);
-        //    direction = new Vector3(randomX, randomY, 0).normalized;
-        //}
+        
 
         // lifetime秒後にこのオブジェクトを破棄する
         Destroy(gameObject, lifetime);

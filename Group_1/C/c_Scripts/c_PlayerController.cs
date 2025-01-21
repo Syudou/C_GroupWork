@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static c_GameManager;
 
 public class c_PlayerController : MonoBehaviour
 {
@@ -12,7 +13,7 @@ public class c_PlayerController : MonoBehaviour
 
     Rigidbody2D rbody;                  //Rigidbody2D
     Animator animator;                  //Animator
-
+    private Vector2 movement;
     //アレンジ
     SpriteRenderer sprite; //SpriteRendererを参照予定
 
@@ -58,6 +59,7 @@ public class c_PlayerController : MonoBehaviour
 
 
         //
+        c_GameManager.CurrentState = GameState.Playing;
         gameState = "playing";
 
         //HP更新
@@ -67,53 +69,62 @@ public class c_PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //
-        if (gameState != "playing" || inDamage)
+        // ゲーム状態がPlayingでない場合は動きを止める
+        if (c_GameManager.CurrentState != c_GameManager.GameState.Playing)
         {
-            return;
+            movement = Vector2.zero; // 移動ベクトルをリセット
+            rbody.velocity = Vector2.zero;
+            return; // Update処理を終了
         }
 
-        if (isMoving == false)
-        {
-            axisH = Input.GetAxisRaw("Horizontal");         //左右キー入力
-            axisV = Input.GetAxisRaw("Vertical");           //上下キー入力
-        }
-        //キー入力から移動角度を求める
-        Vector2 fromPt = transform.position;
-        Vector2 toPt = new Vector2(fromPt.x + axisH, fromPt.y + axisV);
-        angleZ = GetAngle(fromPt, toPt);
-
-        //移動角度から向いている方向とアニメーション更新
-        int dir;
-        if (angleZ >= -45 && angleZ < 45)
-        {
-            //右向き
-            dir = 3;
-        }
-        else if (angleZ >= 45 && angleZ <= 135)
-        {
-            //上向き
-            dir = 2;
-        }
-        else if (angleZ >= -135 && angleZ <= -45)
-        {
-            //下向き
-            dir = 0;
-        }
         else
         {
-            //左向き
-            dir = 1;
+            if (gameState != "playing" || inDamage)
+            {
+                return;
+            }
+
+            if (isMoving == false)
+            {
+                axisH = Input.GetAxisRaw("Horizontal");         //左右キー入力
+                axisV = Input.GetAxisRaw("Vertical");           //上下キー入力
+            }
+            //キー入力から移動角度を求める
+            Vector2 fromPt = transform.position;
+            Vector2 toPt = new Vector2(fromPt.x + axisH, fromPt.y + axisV);
+            angleZ = GetAngle(fromPt, toPt);
+
+            //移動角度から向いている方向とアニメーション更新
+            int dir;
+            if (angleZ >= -45 && angleZ < 45)
+            {
+                //右向き
+                dir = 3;
+            }
+            else if (angleZ >= 45 && angleZ <= 135)
+            {
+                //上向き
+                dir = 2;
+            }
+            else if (angleZ >= -135 && angleZ <= -45)
+            {
+                //下向き
+                dir = 0;
+            }
+            else
+            {
+                //左向き
+                dir = 1;
+            }
+            if (dir != direction)
+            {
+                direction = dir;
+                animator.SetInteger("Direction", direction);
+            }
+
+
+
         }
-        if (dir != direction)
-        {
-            direction = dir;
-            animator.SetInteger("Direction", direction);
-        }
-
-
-
-
         ////
         //gameState = "playing";
     }
@@ -121,6 +132,14 @@ public class c_PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         Debug.Log(inDamage);
+
+        if (c_GameManager.CurrentState != c_GameManager.GameState.Playing)
+        {
+            // ゲームクリアまたはゲームオーバー時に速度を完全にリセット
+            rbody.velocity = Vector2.zero;
+            return;
+        }
+
         //
         if (gameState != "playing")
         {
@@ -172,10 +191,12 @@ public class c_PlayerController : MonoBehaviour
     {
         if (collision.gameObject.tag == "Enemy")
         {
+            Debug.Log("collsion");
+
             //ダメージ中であれば発動しない※無敵時間
             if (!inDamage)
             {
-                //ダメージを受ける自作メソッドを自作
+                //ダメージを受ける自作メソッド
                 GetDamage(collision.gameObject);
                 
 
@@ -189,8 +210,7 @@ public class c_PlayerController : MonoBehaviour
         if (gameState == "playing")
         {
             hp--; //HPを減らす
-            //HPの保存
-            PlayerPrefs.SetInt("PlayerHP", hp);
+            
 
             if (hp > 0)
             {
@@ -228,7 +248,9 @@ public class c_PlayerController : MonoBehaviour
     void GameOver()
     {
         gameState = "gameover";
-        
+        c_GameManager.CurrentState = GameState.GameOver;
+
+
         GetComponent<CircleCollider2D>().enabled = false;          
         rbody.velocity = new Vector2(0, 0);                       
         rbody.gravityScale = 1;                                     

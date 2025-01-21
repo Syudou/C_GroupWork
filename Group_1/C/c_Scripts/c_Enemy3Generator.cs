@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
+using static c_GameManager;
 
 public class c_Enemy3Generator : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class c_Enemy3Generator : MonoBehaviour
     {
         // ゲームオーバーなら処理を停止
         if (gameState == "gameover") return;
+        if (c_GameManager.CurrentState == GameState.GameOver) return;
+        if (c_GameManager.CurrentState == GameState.GameClear) return;
 
         // タイマーを増加
         timer += Time.deltaTime;
@@ -43,10 +46,7 @@ public class c_Enemy3Generator : MonoBehaviour
         Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
     }
 
-    //public void StopSpawning()
-    //{
-    //    isGameOver = true;
-    //}
+   
 
 }
 
