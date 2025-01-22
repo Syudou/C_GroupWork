@@ -178,7 +178,7 @@ public class c_GameManager : MonoBehaviour
     public void GameSelectGame()
     {
         // Œ»İ‚ÌƒV[ƒ“‚ğÄ“Ç‚İ‚İ‚·‚é
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene("GameSelect");
     }
 
     public void PlaySE(AudioClip clip)
