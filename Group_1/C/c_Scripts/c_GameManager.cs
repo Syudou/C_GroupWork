@@ -20,6 +20,10 @@ public class c_GameManager : MonoBehaviour
 
     public float countdownTime = 60f; // カウントダウンの時間
 
+    public AudioClip gameOverSE; // ゲームオーバー時のSE
+    public AudioClip gameClearSE; // ゲームクリア時のSE
+    private AudioSource audioSource; // AudioSourceコンポーネント
+
     //public static string gameState;
     public static GameState CurrentState = GameState.Playing;
 
@@ -49,7 +53,7 @@ public class c_GameManager : MonoBehaviour
 
         StartCoroutine(HideTextWithDelay());
 
-        
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -127,6 +131,9 @@ public class c_GameManager : MonoBehaviour
         // カウントダウンの表示を消す
         TimeText.text = "";
 
+        // ゲームオーバーSEを再生
+        PlaySE(gameOverSE);
+
         // ボタンを表示
         RetryButton.gameObject.SetActive(true);
         GameSelectButton.gameObject.SetActive(true);
@@ -140,6 +147,9 @@ public class c_GameManager : MonoBehaviour
         // 「ゲームクリア」を表示
         GameOverText.gameObject.SetActive(true);
         GameOverText.text = "Game Clear!";
+
+        // ゲームクリアSEを再生
+        PlaySE(gameClearSE);
 
         c_GameManager.CurrentState = GameState.GameClear;
         
@@ -171,5 +181,12 @@ public class c_GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+    public void PlaySE(AudioClip clip)
+    {
+        if (audioSource != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
 
-}
+    }
